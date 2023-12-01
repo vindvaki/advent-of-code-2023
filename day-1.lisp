@@ -59,10 +59,10 @@ zoneight234
         for elt in +digit-strings+
         for elt-idx = 0 then (1+ elt-idx)
         for found-idx = (search elt seq :from-end from-end :test #'string=)
-        when found-idx do
-          (when (or (not seq-idx) (funcall cmp found-idx seq-idx))
-            (setf seq-idx found-idx
-                  result-idx elt-idx))
+        when (and found-idx
+                  (or (not seq-idx) (funcall cmp found-idx seq-idx)))
+          do (setf seq-idx found-idx
+                   result-idx elt-idx)
         finally (return (1+ (if (< result-idx 9)
                                 result-idx
                                 (- result-idx 9))))))
