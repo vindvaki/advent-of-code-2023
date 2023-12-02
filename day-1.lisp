@@ -40,11 +40,6 @@ zoneight234
   '("1" "2" "3" "4" "5" "6" "7" "8" "9"
     "one" "two" "three" "four" "five" "six" "seven" "eight" "nine"))
 
-(defun parse-digit-string (s)
-  (if (digit-char-p (elt s 0))
-      (parse-integer s)
-      (- (position s +digit-strings+ :test 'equal) 9)))
-
 (defun part-2 (input)
   (loop for line in (lines input)
         for first = (find-digit line)
