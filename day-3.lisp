@@ -26,17 +26,18 @@
 ...$.*....
 .664.598..")
 
-(defstruct (number-interval (:constructor make-number-interval (number row col-begin col-end)))  number row col-begin col-end)
+(defstruct (interval (:constructor make-interval (number row col-begin col-end)))
+  number row col-begin col-end)
 
 (defun parse-input (input)
   (let* ((lines (lines input))
          (rows (length lines))
          (cols (length (car lines)))
          (grid (make-array (list rows cols) :initial-contents (mapcar (lambda (s) (coerce s 'list)) lines)))
-         (number-intervals (make-number-intervals grid)))
-    (values grid number-intervals)))
+         (intervals (make-intervals grid)))
+    (values grid intervals)))
 
-(defun make-number-intervals (grid)
+(defun make-intervals (grid)
   (destructuring-bind (rows cols) (array-dimensions grid)
     (collecting
       (dotimes (row rows)
@@ -50,25 +51,25 @@
                         number (+ (* 10 number) (- (char-code char) (char-code #\0))))
                   ;; else collect and reset
                   (when digit-begin
-                    (collect (make-number-interval number row digit-begin col))
+                    (collect (make-interval number row digit-begin col))
                     (setf digit-begin nil
                           number 0)))))
           ;; end-of-row needs special handling
           (when digit-begin
-            (collect (make-number-interval number row digit-begin cols))))))))
+            (collect (make-interval number row digit-begin cols))))))))
 
-(defun number-interval-contains-p (interval row col)
-  (and (= row (number-interval-row interval))
-       (<= (number-interval-col-begin interval) col (1- (number-interval-col-end interval)))))
+(defun interval-contains-p (interval row col)
+  (and (= row (interval-row interval))
+       (<= (interval-col-begin interval) col (1- (interval-col-end interval)))))
 
 (defun symbol-adjacent-p (grid interval)
   (destructuring-bind (rows cols) (array-dimensions grid)
-    (let ((irow (number-interval-row interval))
-          (icol-begin (number-interval-col-begin interval))
-          (icol-end (number-interval-col-end interval)))
+    (let ((irow (interval-row interval))
+          (icol-begin (interval-col-begin interval))
+          (icol-end (interval-col-end interval)))
       (loop :for row :from (max (1- irow) 0) :upto (min (1+ irow) (1- rows)) :do
         (loop :for col :from (max (1- icol-begin) 0) :upto (min icol-end (1- cols)) :do
-          (when (and (not (number-interval-contains-p interval row col))
+          (when (and (not (interval-contains-p interval row col))
                      (char/= #\. (aref grid row col))) ;; is a symbol
             (return-from symbol-adjacent-p t)))))))
 
@@ -80,12 +81,12 @@
     (summing
       (dolist (interval intervals)
         (when (symbol-adjacent-p grid interval)
-          (sum (number-interval-number interval)))))))
+          (sum (interval-number interval)))))))
 
 (defun interval-neighbor-p (interval row col)
-  (let ((irow (number-interval-row interval))
-        (icol-begin (number-interval-col-begin interval))
-        (icol-end (number-interval-col-end interval)))
+  (let ((irow (interval-row interval))
+        (icol-begin (interval-col-begin interval))
+        (icol-end (interval-col-end interval)))
     (and (<= (1- irow) row (1+ irow))
          (<= (1- icol-begin) col icol-end))))
 
@@ -99,6 +100,6 @@
               (let ((neighbors (collecting
                                  (dolist (interval intervals)
                                    (when (interval-neighbor-p interval row col)
-                                     (collect (number-interval-number interval)))))))
+                                     (collect (interval-number interval)))))))
                 (when (= 2 (length neighbors))
                   (sum (reduce #'* neighbors)))))))))))
