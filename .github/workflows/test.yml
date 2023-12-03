@@ -1,0 +1,25 @@
+name: Test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: fukamachi/sbcl:2.3.10
+    steps:
+    - name: Install git
+      run: |
+        apt update && apt install -y git
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Cache Quicklisp dependencies
+      uses: actions/cache@v3
+      with:
+        key: ${{ runner.os }}
+        path: |
+          ~/.roswell/quicklisp
+    - name: Run tests
+      run: |
+        mkdir -p ~/common-lisp
+        export CL_DIR=$HOME/common-lisp/advent-of-code-2023
+        ln -s "$PWD" "$CL_DIR"
+        cd "$CL_DIR"
+        ./run-tests.ros
