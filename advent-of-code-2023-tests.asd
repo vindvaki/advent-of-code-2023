@@ -1,7 +1,7 @@
-(defsystem "advent-of-code-tests"
+(defsystem "advent-of-code-2023-tests"
   :class :package-inferred-system
   :author "Hordur Freyr Yngvason"
   :license "MIT"
-  :depends-on ("advent-of-code-tests/tests")
+  :depends-on ("advent-of-code-2023-tests/tests")
   :perform (test-op (op c)
-                    (symbol-call :advent-of-code-tests/tests :run)))
+                    (symbol-call :advent-of-code-2023-tests/tests :run)))

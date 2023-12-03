@@ -4,7 +4,12 @@
                 #:~>
                 #:lines)
   (:import-from #:uiop
-                #:read-file-string))
+                #:read-file-string)
+  (:export
+   #:part-2
+   #:part-1
+   #:load-input
+   #:*example*))
 
 (in-package #:advent-of-code-2023/day-3)
 

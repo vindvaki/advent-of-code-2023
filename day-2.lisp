@@ -10,7 +10,12 @@
                 #:hash-table-values)
   (:import-from #:cl-ppcre
                 #:register-groups-bind
-                #:split))
+                #:split)
+  (:export
+   #:*example*
+   #:load-input
+   #:part-1
+   #:part-2))
 
 (in-package #:advent-of-code-2023/day-2)
 

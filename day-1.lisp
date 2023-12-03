@@ -8,7 +8,13 @@
   (:import-from #:alexandria
                 #:when-let
                 #:first-elt
-                #:last-elt))
+                #:last-elt)
+  (:export
+   #:*example-2*
+   #:*example*
+   #:part-2
+   #:part-1
+   #:load-input))
 
 (in-package #:advent-of-code-2023/day-1)
 
