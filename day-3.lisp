@@ -57,18 +57,20 @@
           (when digit-begin
             (collect (make-number-interval number row digit-begin cols))))))))
 
+(defun number-interval-contains-p (interval row col)
+  (and (= row (number-interval-row interval))
+       (<= (number-interval-col-begin interval) col (1- (number-interval-col-end interval)))))
+
 (defun symbol-adjacent-p (grid interval)
   (destructuring-bind (rows cols) (array-dimensions grid)
     (let ((irow (number-interval-row interval))
-          (icols-begin (number-interval-col-begin interval))
-          (icols-end (number-interval-col-end interval)))
-      (loop :for row :from (1- irow) :upto (1+ irow) :do
-        (when (<= 0 row (1- rows)) ;; in the grid
-          (loop :for col :from (1- icols-begin) :upto icols-end :do
-            (when (and (<= 0 col (1- cols)) ;; in the grid
-                       (not (and (= row irow) (<= icols-begin col (1- icols-end)))) ;; not in the current interval
-                       (char/= #\. (aref grid row col))) ;; is a symbol
-              (return-from symbol-adjacent-p t))))))))
+          (icol-begin (number-interval-col-begin interval))
+          (icol-end (number-interval-col-end interval)))
+      (loop :for row :from (max (1- irow) 0) :upto (min (1+ irow) (1- rows)) :do
+        (loop :for col :from (max (1- icol-begin) 0) :upto (min icol-end (1- cols)) :do
+          (when (and (not (number-interval-contains-p interval row col))
+                     (char/= #\. (aref grid row col))) ;; is a symbol
+            (return-from symbol-adjacent-p t)))))))
 
 (defun load-input ()
   (read-file-string "day-3.input"))
