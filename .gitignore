@@ -4,3 +4,4 @@
 tmp/
 
 *.fasl
+/run-tests

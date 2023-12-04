@@ -15,11 +15,11 @@ jobs:
       with:
         key: ${{ runner.os }}
         path: |
-          ~/.roswell/quicklisp
+          ~/quicklisp
     - name: Run tests
       run: |
-        mkdir -p ~/common-lisp
+        mkdir -p ~/quicklisp
         export CL_DIR=$HOME/common-lisp/advent-of-code-2023
         ln -s "$PWD" "$CL_DIR"
         cd "$CL_DIR"
-        ./run-tests.ros
+        make test
