@@ -19,6 +19,7 @@ jobs:
     - name: Run tests
       run: |
         mkdir -p ~/quicklisp
+        mkdir -p ~/common-lisp
         export CL_DIR=$HOME/common-lisp/advent-of-code-2023
         ln -s "$PWD" "$CL_DIR"
         cd "$CL_DIR"
