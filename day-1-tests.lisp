@@ -1,6 +1,5 @@
 (defpackage #:advent-of-code-2023-tests/day-1-tests
-  (:use #:cl #:parachute #:advent-of-code-2023/day-1)
-  (:export #:run))
+  (:use #:cl #:parachute #:advent-of-code-2023/day-1))
 
 (in-package #:advent-of-code-2023-tests/day-1-tests)
 
