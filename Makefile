@@ -20,3 +20,16 @@ test: *.lisp *.asd *.input
 		--eval '(asdf:test-system :advent-of-code-2023)' \
 		--quit \
 		--non-interactive
+
+dependency-resolver: dependency-resolver.lisp dependency-resolver.asd
+	sbcl \
+		--noinform \
+		--lose-on-corruption \
+		--end-runtime-options \
+		--eval '(ql:quickload :dependency-resolver)' \
+		--eval '(asdf:make :dependency-resolver)' \
+		--quit \
+		--non-interactive
+
+all-dependencies.txt: dependency-resolver
+	./dependency-resolver > all-dependencies.txt

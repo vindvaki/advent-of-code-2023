@@ -13,7 +13,7 @@ jobs:
     - name: Cache Quicklisp dependencies
       uses: actions/cache@v3
       with:
-        key: ${{ runner.os }}
+        key: quicklisp-${{ runner.os }}-${{ hashFiles('all-dependencies.txt') }}
         path: |
           ~/quicklisp
     - name: Run tests
