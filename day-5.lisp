@@ -137,10 +137,10 @@ humidity-to-location map:
          ((not (cdr iter)) (collect current))
       (setf iter (cdr iter))
       (let ((next (car iter)))
-        (if  (interval-intersection current next)
-             (setf (cadr current) (max (cadr current) (cadr next)))
-             (progn (collect current)
-                    (setf current (copy-list next))))))))
+        (if (interval-intersection current next)
+            (setf (cadr current) (max (cadr current) (cadr next)))
+            (progn (collect current)
+                   (setf current (copy-list next))))))))
 
 (defun translate-interval (source-interval source-to-target-ranges)
   (interval-union
