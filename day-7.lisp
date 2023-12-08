@@ -1,7 +1,6 @@
 (defpackage #:advent-of-code-2023/day-7
   (:use #:cl)
   (:import-from #:serapeum
-                #:econd
                 #:~>
                 #:lines)
   (:import-from #:uiop
@@ -9,6 +8,7 @@
   (:import-from #:cl-ppcre
                 #:split)
   (:import-from #:alexandria
+                #:eswitch
                 #:hash-table-values)
   (:export
    #:*example*
@@ -101,22 +101,23 @@ QQQJA 483")
   (let* ((table (frequency-table hand))
          (counts (sort (hash-table-values table) #'>))
          (jokers (gethash 1 table 0)))
-    (econd
-     ((= jokers 5) '(5))
-     ((= jokers 4) '(5))
-     ((= jokers 3) (econd ((equal '(3 2) counts) '(5))
-                          ((equal '(3 1 1) counts) '(4 1))))
-     ((= jokers 2) (econd
-                    ((equal '(3 2) counts) '(5))
-                    ((equal '(2 2 1) counts) '(4 1))
-                    ((equal '(2 1 1 1) counts) '(3 1 1))))
-     ((= jokers 1) (econd
-                    ((equal '(4 1) counts) '(5))
-                    ((equal '(3 1 1) counts) '(4 1))
-                    ((equal '(2 2 1) counts) '(3 2))
-                    ((equal '(2 1 1 1) counts) '(3 1 1))
-                    ((equal '(1 1 1 1 1) counts) '(2 1 1 1))))
-     ((= jokers 0) counts))))
+    (ecase jokers
+      (5 '(5))
+      (4 '(5))
+      (3 (eswitch (counts :test 'equal)
+           ('(3 2) '(5))
+           ('(3 1 1) '(4 1))))
+      (2 (eswitch (counts :test 'equal)
+           ('(3 2) '(5))
+           ('(2 2 1) '(4 1))
+           ('(2 1 1 1) '(3 1 1))))
+      (1 (eswitch (counts :test 'equal)
+           ('(4 1) '(5))
+           ('(3 1 1) '(4 1))
+           ('(2 2 1) '(3 2))
+           ('(2 1 1 1) '(3 1 1))
+           ('(1 1 1 1 1) '(2 1 1 1))))
+      (0 counts))))
 
 (defun part-2 (input)
   (~> (parse-input input #'parse-joker-card)
