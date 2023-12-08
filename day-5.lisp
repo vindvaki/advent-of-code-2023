@@ -58,10 +58,6 @@ humidity-to-location map:
 60 56 37
 56 93 4")
 
-(multiple-value-bind (s m) (parse-input *example*)
-  (defparameter *seeds* s)
-  (defparameter *map* m))
-
 (defun parse-input (input)
   (let* ((lines (lines input))
          (seeds (parse-seeds (car lines)))
