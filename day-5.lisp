@@ -15,7 +15,12 @@
                 #:register-groups-bind
                 #:split)
   (:import-from #:alexandria
-                #:ensure-gethash))
+                #:ensure-gethash)
+  (:export
+   #:*example*
+   #:load-input
+   #:part-1
+   #:part-2))
 
 (in-package #:advent-of-code-2023/day-5)
 

@@ -11,7 +11,8 @@
   (:export
    #:load-input
    #:part-1
-   #:part-2))
+   #:part-2
+   #:*example*))
 
 (in-package #:advent-of-code-2023/day-6)
 

@@ -10,7 +10,12 @@
                 #:split)
   (:import-from #:alexandria
                 #:hash-table-keys
-                #:hash-table-values))
+                #:hash-table-values)
+  (:export
+   #:*example*
+   #:load-input
+   #:part-1
+   #:part-2))
 
 (in-package #:advent-of-code-2023/day-7)
 

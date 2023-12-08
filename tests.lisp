@@ -5,6 +5,9 @@
   (:import-from #:advent-of-code-2023-tests/day-2-tests)
   (:import-from #:advent-of-code-2023-tests/day-3-tests)
   (:import-from #:advent-of-code-2023-tests/day-4-tests)
+  (:import-from #:advent-of-code-2023-tests/day-5-tests)
+  (:import-from #:advent-of-code-2023-tests/day-6-tests)
+  (:import-from #:advent-of-code-2023-tests/day-7-tests)
   (:export #:run))
 
 (in-package #:advent-of-code-2023-tests/tests)
