@@ -9,7 +9,6 @@
   (:import-from #:cl-ppcre
                 #:split)
   (:import-from #:alexandria
-                #:hash-table-keys
                 #:hash-table-values)
   (:export
    #:*example*
@@ -28,19 +27,13 @@ QQQJA 483")
 (defun load-input ()
   (read-file-string "day-7.input"))
 
-(defun parse-input-1 (input)
-  (~> (lines input)
-      (mapcar #'parse-line-1 _)))
+(defun parse-input (input parse-card-fn)
+  (loop for line in (lines input)
+        for (hand-string bid-string) = (split " " line)
+        collecting (list (map 'list parse-card-fn hand-string)
+                         (parse-integer bid-string))))
 
-(defun parse-line-1 (line)
-  (destructuring-bind (hand-string bid-string) (split " " line)
-    (list (parse-hand-1 hand-string)
-          (parse-integer bid-string))))
-
-(defun parse-hand-1 (hand)
-  (map 'list #'parse-card-1 hand))
-
-(defun parse-card-1 (card)
+(defun parse-card (card)
   (if (digit-char-p card)
       (- (char-code card) (char-code #\0))
       (ecase card
@@ -56,43 +49,23 @@ QQQJA 483")
           (incf (gethash key table 0))
         finally (return table)))
 
-(defun score-hand (hand)
-  (let* ((frequency-table (frequency-table hand))
-         (counts (sort (hash-table-values frequency-table) #'>)))
-    (list (score-signature counts) hand)))
+(defun hand-signature (hand)
+  (let* ((frequency-table (frequency-table hand)))
+    (sort (hash-table-values frequency-table) #'>)))
 
-(defun score-signature (counts)
-  (econd
-   ;; Five of a kind, where all five cards have the same label: AAAAA
-   ((equal '(5) counts) 7)
-   ;; Four of a kind, where four cards have the same label and one card has a different label: AA8AA
-   ((equal '(4 1) counts) 6)
-   ;; Full house, where three cards have the same label, and the remaining two cards share a different label: 23332
-   ((equal '(3 2) counts) 5)
-   ;; Three of a kind, where three cards have the same label, and the remaining two cards are each different from any other card in the hand: TTT98
-   ((equal '(3 1 1) counts) 4)
-   ;; Two pair, where two cards share one label, two other cards share a second label, and the remaining card has a third label: 23432
-   ((equal '(2 2 1) counts) 3)
-   ;; One pair, where two cards share one label, and the other three cards have a different label from the pair and each other: A23A4
-   ((equal '(2 1 1 1) counts) 2)
-   ;; High card, where all cards' labels are distinct: 23456)
-   ((equal '(1 1 1 1 1) counts) 1)))
-
-(defun list<= (xs ys)
+(defun deep-list< (xs ys)
+  "Deep compare two number-leafed lists under a recursive lexicographical ordering"
+  (assert (equal (listp xs) (listp ys)))
+  (unless (listp xs)
+    (return-from deep-list< (< xs ys)))
   (loop for x in xs
         for y in ys
         for ixs = xs then (cdr ixs)
         for iys = ys then (cdr iys) do
-          (cond ((< x y) (return t))
-                ((> x y) (return nil)))
-        finally (when ixs (return t))))
-
-(defun hand<= (a b)
-  (destructuring-bind (a-rank a-tiebreaker) (score-hand a)
-    (destructuring-bind (b-rank b-tiebreaker) (score-hand b)
-      (cond ((< a-rank b-rank) t)
-            ((> a-rank b-rank) nil)
-            (t (list<= a-tiebreaker b-tiebreaker))))))
+          (cond ((deep-list< x y) (return t))
+                ((deep-list< y x) (return nil)))
+        finally (when (and (not ixs) iys)
+                  (return t))))
 
 (defun total-winnings (hands-bids cmp)
   (loop with hands = (sort (mapcar #'car hands-bids) cmp)
@@ -106,23 +79,15 @@ QQQJA 483")
         for winning = (* bid rank)
         summing winning))
 
+(defun make-hand< (signature-function)
+  (lambda (a b) (deep-list< (list (funcall signature-function a) a)
+                            (list (funcall signature-function b) b))))
+
 (defun part-1 (input)
-  (~> (parse-input-1 input)
-      (total-winnings _ #'hand<=)))
+  (~> (parse-input input #'parse-card)
+      (total-winnings _ (make-hand< #'hand-signature))))
 
-(defun parse-input-2 (input)
-  (~> (lines input)
-      (mapcar #'parse-line-2 _)))
-
-(defun parse-line-2 (line)
-  (destructuring-bind (hand-string bid-string) (split " " line)
-    (list (parse-hand-2 hand-string)
-          (parse-integer bid-string))))
-
-(defun parse-hand-2 (hand)
-  (map 'list #'parse-card-2 hand))
-
-(defun parse-card-2 (card)
+(defun parse-joker-card (card)
   (if (digit-char-p card)
       (- (char-code card) (char-code #\0))
       (ecase card
@@ -134,7 +99,7 @@ QQQJA 483")
 
 (defun joker-signature (hand)
   (let* ((table (frequency-table hand))
-         (counts (print (sort (hash-table-values table) #'>)))
+         (counts (sort (hash-table-values table) #'>))
          (jokers (gethash 1 table 0)))
     (econd
      ((= jokers 5) '(5))
@@ -153,17 +118,6 @@ QQQJA 483")
                     ((equal '(1 1 1 1 1) counts) '(2 1 1 1))))
      ((= jokers 0) counts))))
 
-(defun score-hand-with-jokers (hand)
-  (list (score-signature (joker-signature hand))
-        hand))
-
-(defun hand-with-jokers<= (a b)
-  (destructuring-bind (a-rank a-tiebreaker) (score-hand-with-jokers a)
-    (destructuring-bind (b-rank b-tiebreaker) (score-hand-with-jokers b)
-      (cond ((< a-rank b-rank) t)
-            ((> a-rank b-rank) nil)
-            (t (list<= a-tiebreaker b-tiebreaker))))))
-
 (defun part-2 (input)
-  (~> (parse-input-2 input)
-      (total-winnings _ #'hand-with-jokers<=)))
+  (~> (parse-input input #'parse-joker-card)
+      (total-winnings _ (make-hand< #'joker-signature))))
