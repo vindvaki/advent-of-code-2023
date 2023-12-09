@@ -8,7 +8,12 @@
   (:import-from #:cl-ppcre
                 #:split)
   (:import-from #:alexandria
-                #:last-elt))
+                #:last-elt)
+  (:export
+   #:part-1
+   #:part-2
+   #:*example*
+   #:load-input))
 
 (in-package #:advent-of-code-2023/day-9)
 

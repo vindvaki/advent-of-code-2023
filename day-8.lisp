@@ -18,7 +18,11 @@
                 #:eswitch
                 #:hash-table-values)
   (:export
-   #:*example*))
+   #:*example*
+   #:*example-2*
+   #:*example-3*
+   #:part-1
+   #:load-input))
 
 (in-package #:advent-of-code-2023/day-8)
 
