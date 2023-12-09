@@ -51,12 +51,6 @@
   (loop for numbers in (parse-input input)
         summing (extrapolate-history numbers)))
 
-(defun reverse-extrapolate-history (numbers)
-  (let ((tower (difference-tower numbers)))
-    (loop for differences in (reverse tower)
-          for result = (car differences) then (- (car differences) result)
-          finally (return result))))
-
 (defun part-2 (input)
   (loop for numbers in (parse-input input)
-        summing (reverse-extrapolate-history numbers)))
+        summing (extrapolate-history (reverse numbers))))
