@@ -8,7 +8,11 @@
   (:import-from #:cl-ppcre
                 #:split)
   (:import-from #:alexandria
-                #:map-combinations))
+                #:map-combinations)
+  (:export
+   #:part-1
+   #:load-input
+   #:part-2))
 
 (in-package #:advent-of-code-2023/day-11)
 

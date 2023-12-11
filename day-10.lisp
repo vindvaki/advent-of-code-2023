@@ -16,7 +16,8 @@
                 #:switch)
   (:export
    #:part-1
-   #:load-input))
+   #:load-input
+   #:part-2))
 
 (in-package #:advent-of-code-2023/day-10)
 

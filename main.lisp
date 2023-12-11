@@ -8,6 +8,8 @@
   (:import-from #:advent-of-code-2023/day-6)
   (:import-from #:advent-of-code-2023/day-7)
   (:import-from #:advent-of-code-2023/day-8)
-  (:import-from #:advent-of-code-2023/day-9))
+  (:import-from #:advent-of-code-2023/day-9)
+  (:import-from #:advent-of-code-2023/day-10)
+  (:import-from #:advent-of-code-2023/day-11))
 
 (in-package #:advent-of-code-2023/main)
