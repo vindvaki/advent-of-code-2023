@@ -46,11 +46,17 @@
       (when (> run 0)
         (collect run)))))
 
-(-> map-damage-maps (simple-string list function &key (:start fixnum)) t)
-(defun map-damage-maps (partial-damage-map damage-runs fn &key (start 0))
+(-> map-damage-maps (simple-string list function &key (:start fixnum) (:damage-budget fixnum)) t)
+(defun map-damage-maps (partial-damage-map damage-runs fn &key (start 0) (damage-budget (- (reduce #'+ damage-runs)
+                                                                                           (count #\# partial-damage-map :start (min start (1- (length partial-damage-map)))))))
   ;; have we consumed all runs?
   (unless damage-runs
-    (funcall fn partial-damage-map)
+    (when (or (>= start (length partial-damage-map))
+              (not (position #\# partial-damage-map :start start)))
+      (funcall fn partial-damage-map))
+    (return-from map-damage-maps))
+  ;; are we out of budget?
+  (when (< damage-budget 0)
     (return-from map-damage-maps))
   ;; have we exhausted the map without consuming all runs?
   (when (>= start (length partial-damage-map))
@@ -65,6 +71,8 @@
            (labels ((reset ()
                       (push run runs)
                       (dolist (pos changes)
+                        (when (char= (aref partial-damage-map pos) #\#)
+                          (incf damage-budget))
                         (setf (aref partial-damage-map pos) #\?)))
                     (reset-and-return ()
                       (reset)
@@ -80,16 +88,16 @@
                                                              (setf (aref partial-damage-map end) #\.))))))
              ;; ensure the body of the run
              (dotimes (i run)
-               (let* ((pos (+ start i))
-                      (c (aref partial-damage-map pos)))
-                 (ecase c
+               (let ((pos (+ start i)))
+                 (ecase (aref partial-damage-map pos)
                    (#\. (reset-and-return))
                    (#\# nil)
                    (#\? (progn
                           (push pos changes)
+                          (decf damage-budget)
                           (setf (aref partial-damage-map pos) #\#))))))
              ;; recurse and reset
-             (map-damage-maps partial-damage-map runs fn :start (1+ end))
+             (map-damage-maps partial-damage-map runs fn :start (1+ end) :damage-budget damage-budget)
              (reset)))))
     (ecase (aref partial-damage-map start)
       ;; must consume run
@@ -101,9 +109,7 @@
       ;; must consider both options
       (#\?
        (consume-run)
-       (setf (aref partial-damage-map start) #\.)
-       (map-damage-maps partial-damage-map damage-runs fn :start (1+ start))
-       (setf (aref partial-damage-map start) #\?)))))
+       (map-damage-maps partial-damage-map damage-runs fn :start (1+ start))))))
 
 
 (defun count-arrangements (partial-damage-map damage-runs)
