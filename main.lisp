@@ -10,6 +10,7 @@
   (:import-from #:advent-of-code-2023/day-8)
   (:import-from #:advent-of-code-2023/day-9)
   (:import-from #:advent-of-code-2023/day-10)
-  (:import-from #:advent-of-code-2023/day-11))
+  (:import-from #:advent-of-code-2023/day-11)
+  (:import-from #:advent-of-code-2023/day-12))
 
 (in-package #:advent-of-code-2023/main)
