@@ -11,7 +11,12 @@
   (:import-from #:cl-ppcre
                 #:split)
   (:import-from #:alexandria
-                #:ensure-gethash))
+                #:eswitch
+                #:ensure-gethash)
+  (:export
+   #:part-2
+   #:part-1
+   #:load-input))
 
 (in-package #:advent-of-code-2023/day-12)
 
@@ -32,35 +37,21 @@
                     (mapcar #'parse-integer _))))
       (list partial-damage-map runs))))
 
-(-> damage-runs (simple-string))
-(defun damage-runs (partial-damage-map)
-  (collecting
-    (let ((run 0))
-      (declare (fixnum run))
-      (dotimes (i (length partial-damage-map))
-        (if (char= #\# (aref partial-damage-map i))
-            (incf run)
-            (progn
-              (when (> run 0)
-                (collect run))
-              (setf run 0))))
-      (when (> run 0)
-        (collect run)))))
-
 (-> count-damage-maps (simple-string list &key (:start fixnum) (:cache hash-table)) fixnum)
 (defun count-damage-maps (partial-damage-map damage-runs &key (start 0) (cache (make-hash-table :test 'equal)))
   (ensure-gethash
    (list damage-runs start)
    cache
-   (block nil
+   (block cache-body
      ;; have we consumed all runs?
      (unless damage-runs
-       (return (if (or (>= start (length partial-damage-map))
-                       (not (position #\# partial-damage-map :start start)))
-                   1 0)))
+       (return-from cache-body
+         (if (or (>= start (length partial-damage-map))
+                 (not (position #\# partial-damage-map :start start)))
+             1 0)))
      ;; have we exhausted the map without consuming all runs?
      (when (>= start (length partial-damage-map))
-       (return 0))
+       (return-from cache-body 0))
      ;; recursive case
      (labels
          ((consume-run ()
@@ -68,7 +59,17 @@
                    (run (pop runs))
                    (changes nil)
                    (end (+ start run)))
-              (labels ((reset ()
+              (labels ((try-set (pos value)
+                         (let ((opposite (eswitch (value)
+                                           (#\. #\#)
+                                           (#\# #\.))))
+                           (eswitch ((aref partial-damage-map pos))
+                             (opposite (reset-and-return))
+                             (value nil)
+                             (#\? (progn
+                                    (push pos changes)
+                                    (setf (aref partial-damage-map pos)value))))))
+                       (reset ()
                          (push run runs)
                          (dolist (pos changes)
                            (setf (aref partial-damage-map pos) #\?)))
@@ -78,25 +79,15 @@
                 ;; eagerly ensure the end of the run
                 (cond
                   ((> end (length partial-damage-map)) (reset-and-return))
-                  ((< end (length partial-damage-map)) (ecase (aref partial-damage-map end)
-                                                         (#\# (reset-and-return))
-                                                         (#\. nil)
-                                                         (#\? (progn
-                                                                (push end changes)
-                                                                (setf (aref partial-damage-map end) #\.))))))
+                  ((< end (length partial-damage-map)) (try-set end #\.)))
                 ;; ensure the body of the run
                 (dotimes (i run)
                   (let ((pos (+ start i)))
-                    (ecase (aref partial-damage-map pos)
-                      (#\. (reset-and-return))
-                      (#\# nil)
-                      (#\? (progn
-                             (push pos changes)
-                             (setf (aref partial-damage-map pos) #\#))))))
+                    (try-set pos #\#)))
                 ;; recurse and reset
                 (prog1 (count-damage-maps partial-damage-map runs :start (1+ end) :cache cache)
                   (reset))))))
-       (ecase (aref partial-damage-map start)
+       (eswitch ((aref partial-damage-map start))
          ;; must consume run
          (#\#
           (consume-run))
