@@ -59,6 +59,7 @@
   (let ((array (make-array 256 :element-type 'list :initial-element nil)))
     (dolist (instruction (parse-input input))
       (register-groups-bind (label op focal-length-string) ("(\\w+)([-=])(\\d*)" instruction)
+        (assert (and label op focal-length-string))
         (eswitch (op :test 'equal)
           ("=" (elf-hashmap-insert array label (parse-integer focal-length-string)))
           ("-" (elf-hashmap-remove array label)))))
