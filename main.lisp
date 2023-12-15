@@ -11,6 +11,9 @@
   (:import-from #:advent-of-code-2023/day-9)
   (:import-from #:advent-of-code-2023/day-10)
   (:import-from #:advent-of-code-2023/day-11)
-  (:import-from #:advent-of-code-2023/day-12))
+  (:import-from #:advent-of-code-2023/day-12)
+  (:import-from #:advent-of-code-2023/day-13)
+  (:import-from #:advent-of-code-2023/day-14)
+  (:import-from #:advent-of-code-2023/day-15))
 
 (in-package #:advent-of-code-2023/main)
