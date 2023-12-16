@@ -13,6 +13,7 @@
                 #:when-let
                 #:eswitch)
   (:import-from #:advent-of-code-2023/utils
+                #:reducing
                 #:parse-grid))
 
 (in-package #:advent-of-code-2023/day-16)
@@ -59,25 +60,23 @@
                ('(0 +1) (recurse '(-1 0)))
                ('(0 -1) (recurse '(+1 0)))))))))
 
+(defun energized-count (grid &optional (position '(0 0)) (direction '(0 +1)))
+  (hash-table-count (trace-beam grid position direction)))
+
 (defun part-1 (input)
-  (let* ((grid (parse-grid input))
-         (visited (trace-beam grid)))
-    (hash-table-count visited)))
+  (let* ((grid (parse-grid input)))
+    (energized-count grid)))
 
 (defun load-input ()
   (read-file-string "day-16.input"))
 
 (defun part-2 (input)
-  (let ((grid (parse-grid input))
-        (result 0))
-    (labels ((maximize (row col direction)
-               (let ((visited (trace-beam grid (list row col) direction)))
-                 (setf result (max result (hash-table-count visited))))))
+  (let ((grid (parse-grid input)))
+    (reducing (#'max maximize)
       (destructuring-bind (rows cols) (array-dimensions grid)
         (dotimes (row rows)
-          (maximize row 0 '(0 +1))
-          (maximize row (1- cols) '(0 -1)))
+          (maximize (energized-count grid (list row 0) '(0 +1)))
+          (maximize (energized-count grid (list row 0) '(0 -1))))
         (dotimes (col cols)
-          (maximize 0 col '(+1 0))
-          (maximize (1- rows) col '(-1 0)))))
-    result))
+          (maximize (energized-count grid (list 0 col) '(+1 0)))
+          (maximize (energized-count grid (list (1- rows) col) '(-1 0))))))))
