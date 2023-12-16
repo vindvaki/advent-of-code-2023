@@ -8,6 +8,7 @@
   (:import-from #:cl-ppcre
                 #:split)
   (:import-from #:alexandria
+                #:copy-array
                 #:when-let
                 #:eswitch
                 #:ensure-gethash)
