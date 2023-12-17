@@ -102,18 +102,13 @@
 (defun load-input ()
   (read-file-string "day-17.input"))
 
-(defstruct ultra-state
-  position direction run budget cost)
-
-(defun ultra-state-cost<= (first second)
-  (<= (ultra-state-cost first)
-      (ultra-state-cost second)))
+(defstruct (ultra-state (:include state)) run)
 
 (defun ultra-minimal-heat-loss (grid &optional (source '(0 0)) (target (list
                                                                         (1- (array-dimension grid 0))
                                                                         (1- (array-dimension grid 1)))))
   (let ((heap (make-heap :size (reduce #'* (array-dimensions grid))
-                         :test #'ultra-state-cost<=))
+                         :test #'state-cost<=))
         (table (make-hash-table :test 'equal))
         (target-keys (make-hash-table :test 'equal)))
     (loop for run from 0 upto (reduce #'max (array-dimensions grid)) do
