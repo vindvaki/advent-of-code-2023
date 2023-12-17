@@ -76,7 +76,7 @@
       (destructuring-bind (rows cols) (array-dimensions grid)
         (dotimes (row rows)
           (maximize (energized-count grid (list row 0) '(0 +1)))
-          (maximize (energized-count grid (list row 0) '(0 -1))))
+          (maximize (energized-count grid (list row (1- cols)) '(0 -1))))
         (dotimes (col cols)
           (maximize (energized-count grid (list 0 col) '(+1 0)))
           (maximize (energized-count grid (list (1- rows) col) '(-1 0))))))))
